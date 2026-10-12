@@ -1,0 +1,181 @@
+{
+  "_about": "All scoring rules for main.py. Score % = points earned / sum of weights x 100. Points inside a category are capped at that category's weight. Patterns are regular expressions, matched case-insensitively. File names are matched in lower case.",
+
+  "weights": {
+    "recency": 25,
+    "commit_activity": 20,
+    "code_quality": 20,
+    "documentation": 15,
+    "ci_testing": 15,
+    "transparency": 10,
+    "community": 5
+  },
+
+  "rating_bands": [[90, "Excellent"], [75, "Strong"], [60, "Fair"], [40, "Weak"], [0, "Poor"]],
+
+  "recency": {
+    "_about": "[days since last commit, share of the recency weight]; straight line between points",
+    "curve_days": [[0, 1.0], [7, 1.0], [30, 0.8], [90, 0.48], [180, 0.24], [365, 0.0]]
+  },
+
+  "commit_activity": {
+    "_about": "commit_share of the weight for commits/target_commits, weeks_share for active weeks/total weeks",
+    "window_days": 90,
+    "target_commits": 60,
+    "commit_share": 0.6,
+    "weeks_share": 0.4,
+    "short_history_max_commits": 3
+  },
+
+  "code_quality": {
+    "source_folders": {
+      "_about": "[minimum number of recognised top-level folders, points]; first match wins",
+      "points_by_count": [[3, 6], [2, 4], [1, 2]],
+      "names": ["src", "lib", "server", "engine", "contracts", "app", "apps", "packages", "cmd", "pkg",
+                "internal", "api", "core", "backend", "frontend", "client", "web", "services", "cli",
+                "crates", "modules"]
+    },
+    "lockfile": {
+      "points": 3,
+      "files": ["package-lock.json", "yarn.lock", "pnpm-lock.yaml", "bun.lockb", "bun.lock", "poetry.lock",
+                "pipfile.lock", "uv.lock", "cargo.lock", "go.sum", "gemfile.lock", "composer.lock", "pubspec.lock"]
+    },
+    "linter": {
+      "points": 3,
+      "prefixes": [".eslintrc", "eslint.config", ".prettierrc", "ruff.toml", ".flake8", ".golangci", "rustfmt.toml",
+                   "clippy.toml", ".rubocop", "pylintrc", ".pylintrc", ".solhint", "biome.json",
+                   ".pre-commit-config", ".editorconfig"]
+    },
+    "build_config": {
+      "_about": "a root-level file from 'files', or starting with one of 'prefixes'",
+      "points": 3,
+      "files": ["pyproject.toml", "setup.py", "cargo.toml", "go.mod", "pom.xml", "package.json", "foundry.toml",
+                "gemfile", "composer.json", "makefile", "cmakelists.txt", "deno.json", "build.gradle",
+                "build.gradle.kts", "hardhat.config.ts", "hardhat.config.js"],
+      "prefixes": ["tsconfig"]
+    },
+    "toolchain_pinned": {
+      "points": 2,
+      "files": [".nvmrc", ".node-version", ".python-version", ".tool-versions", "rust-toolchain",
+                "rust-toolchain.toml", ".ruby-version", ".go-version", "dockerfile", "docker-compose.yml",
+                "compose.yml", "flake.nix", ".devcontainer"]
+    },
+    "separate_components": {
+      "_about": "number of build manifests anywhere in the repo (build_config files minus 'exclude')",
+      "points": 1,
+      "min_manifests": 2,
+      "exclude": ["makefile"]
+    },
+    "gitignore": {"points": 1},
+    "mainstream_language": {
+      "points": 1,
+      "languages": ["python", "typescript", "javascript", "go", "rust", "java", "kotlin", "c#", "c++", "c",
+                    "swift", "ruby", "php", "solidity", "scala", "dart"]
+    }
+  },
+
+  "documentation": {
+    "readme": {"points": 3},
+    "readme_length": {
+      "_about": "[minimum characters, points]; first match wins",
+      "points_by_chars": [[3000, 2], [800, 1]]
+    },
+    "readme_sections": {
+      "points": 1,
+      "heading_pattern": "install|usage|getting started|quick ?start|develop|build|setup|run"
+    },
+    "security_md": {"points": 3},
+    "changelog": {"points": 3, "prefixes": ["changelog", "history", "changes", "news"]},
+    "architecture_doc": {
+      "_about": "a doc file whose name matches the pattern; otherwise docs_folder points",
+      "points": 2,
+      "name_pattern": "architecture|design|adr",
+      "extensions": [".md", ".rst", ".txt", ".adoc"]
+    },
+    "docs_folder": {"points": 1, "folders": ["docs/", "doc/", "documentation/"]},
+    "contributing": {"points": 1}
+  },
+
+  "ci_testing": {
+    "workflows": {"points": 3},
+    "runs_tests": {
+      "points": 1,
+      "command_pattern": "\\b(pytest|tox|nox|go test|cargo (test|nextest)|forge test|npm (run )?test|yarn test|pnpm (run )?test|bun test|vitest|jest|mocha|hardhat test|mvn (-\\S+ )*(test|verify)|gradle\\S* test|rspec|phpunit|dotnet test|halmos|make test)\\b"
+    },
+    "latest_runs_green": {
+      "_about": "points x (workflows green on their latest default-branch run / all workflows)",
+      "points": 4,
+      "ignore_workflow_pattern": "\\b(lock|stale|label(er)?|greet|welcome|triage|close|auto-?assign|release drafter)\\b"
+    },
+    "tests_present": {"points": 2},
+    "many_tests": {"points": 1, "min_files": 20},
+    "deep_tests": {
+      "points": 1,
+      "path_pattern": "(integration|e2e|end-to-end|fork|invariant|fuzz|acceptance|playwright|cypress|halmos|echidna|mutation)"
+    },
+    "test_detection": {
+      "_about": "a file counts as a test if it sits in one of these folders or its name matches the pattern",
+      "folders": ["test", "tests", "__tests__", "spec", "specs", "e2e", "integration"],
+      "file_pattern": "(\\.test\\.|\\.spec\\.|_test\\.|^test_|\\.t\\.sol$)"
+    },
+    "coverage": {"points": 1, "pattern": "codecov|coveralls|coverage"},
+    "security_scanning": {
+      "points_each": 1,
+      "max_points": 2,
+      "tools": ["codeql", "semgrep", "slither", "gitleaks", "trivy", "snyk", "dependabot", "renovate", "scorecard",
+                "bandit", "osv", "mythril", "echidna"]
+    }
+  },
+
+  "transparency": {
+    "osi_license": {
+      "points": 5,
+      "licenses": ["mit", "apache-2.0", "bsd-2-clause", "bsd-3-clause", "isc", "mpl-2.0", "gpl-2.0", "gpl-3.0",
+                   "lgpl-2.1", "lgpl-3.0", "agpl-3.0", "epl-2.0", "unlicense", "0bsd", "zlib", "bsl-1.0",
+                   "artistic-2.0"]
+    },
+    "source_available_license": {
+      "points": 2,
+      "points_if_converts_to_open_source": 3,
+      "open_source_targets": ["mit", "apache", "gpl", "mpl", "bsd"],
+      "licenses": ["busl-1.1", "sspl-1.0", "elastic-2.0", "cc-by-nc-4.0", "polyform-noncommercial-1.0.0"]
+    },
+    "unrecognised_license": {"points": 1},
+    "security_policy": {"points": 3},
+    "audit": {
+      "points_reports": 2,
+      "points_mention_only": 1,
+      "no_human_audit_pattern": "no (third[- ]party |independent |external )?(human )?audit|not been audited|unaudited"
+    }
+  },
+
+  "community": {
+    "young_repo_days": 30,
+    "young_repo_policy": "neutral",
+    "_young_repo_policy": "neutral = half the weight for repos younger than young_repo_days; anything else = 0",
+    "attention_points": 3,
+    "stars_per_month_target": 20,
+    "people_points": 2,
+    "contributors_target": 10
+  },
+
+  "risk_patterns": [
+    ["no third-party (human )?audit", "README/SECURITY states no third-party human audit"],
+    ["single (eoa|key|owner|admin|maintainer)", "Single key / owner / admin dependency mentioned"],
+    ["unaudited|not been audited", "Described as unaudited"],
+    ["no timelock", "No timelock mentioned"],
+    ["use at your own risk|experimental|alpha|prototype", "Self-described as experimental / use at own risk"]
+  ],
+
+  "risk_checks": {
+    "_about": "built-in flags; set to false to turn one off",
+    "source_available_license": true,
+    "no_license": true,
+    "archived": true,
+    "fork": true,
+    "short_history": true,
+    "ci_failing": true,
+    "no_tests": true,
+    "no_security_md": true
+  }
+}
